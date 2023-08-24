@@ -29,7 +29,7 @@ growth_array = grow_3d
 SSB_frac_v <- get_ssb.fracs(ssb_month, n_s)
 PopDy <- pop_dyn(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight_m,alpha,beta,indicator,R_devs_v,R_l_pro,n_t,n_s,n_growblock,growth_array)
 N_3d <- PopDy$Abundance
-add.error = TRUE
+# add.error = TRUE
 catch.obj <- cal_catch(f_obj,M_m,N_3d,n_t,n_l,n_s,n_fleets)
 survey_frac_m <- get_survey.fracs(survey_months,n_survey,n_s)
 survey.obj <- cal_survey_inds(N_3d,F_3d,M_m,survey_frac_m,survey_q,survey_sel_switch,survey_sel_pars,dome_pars,survey_periods,size_bm,n_survey,n_s,n_t,n_l)
