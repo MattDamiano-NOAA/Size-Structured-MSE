@@ -16,6 +16,6 @@
 # Mse.proj.R - contains key function for mse projections: projects population dynamics, catches, and surveys
 # Data.gen.proj.R - similarly, re-runs certain functions and updates .dat files for assessments in projections
 
-# For a complete description of how the operating models work, see Damiano et al. (2023) in (pub name here), and for a complete description of the assessment model, see Cao et al.'s paper: Improving assessment of Pandalus stocks using a seasonal, size-structured assessment model with environmental variables. Part I: Model description and application https://doi.org/10.1139/cjfas-2016-0020
+# For a complete description of how the operating models work, see Damiano et al. (2023) in Fisheries Research (intent to submit Oct 2023), and for a complete description of the assessment model, see Cao et al.'s paper: Improving assessment of Pandalus stocks using a seasonal, size-structured assessment model with environmental variables. Part I: Model description and application https://doi.org/10.1139/cjfas-2016-0020
 
 # Model notes and updates will be catalogued in this read.me 
