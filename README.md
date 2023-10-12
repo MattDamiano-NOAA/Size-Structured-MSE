@@ -1,11 +1,8 @@
 # Size-Structured-MSE for common dolphinfish (Coryphaena hippurus)
 
-# This repository contains the project files for the size-structured management strategy evaluation (MSE) tool that was developed for a NOAA Marine Fisheries Initiative (MARFIN) project during 2019-2023.
+# This repository contains the project files for the size-structured management strategy evaluation (MSE) tool for Atlantic dolphinfish that is currently being developed for the National Marine Fisheries Service, Southeast Fisheries Science Center, and was partially funded by the NMFS-SeaGrant Population and Ecosystem Dynamics Fellowship during Sept. 2020 - March 2023. 
 
-# The original goals of this project were to test an array of management strategies against commercial and recreational objectives for two Southeast marine stocks: South Atlantic black sea bass and Atlantic cobia, forecast quantities of interest such as catches by fleet, recruitment, abundance, and spawning stock biomass (SSB), and evaluate tradeoffs where they occur.
-
-# This repository contains R files for the generalized size-structured operating models developed by Damiano et al. (2023) and conditioned to mimic the most recent stock assessment for black sea bass (2023), and the size-structured stock assessment ADMB file developed by Cao et al. (2017). 
-
+# This repository currently contains four R files
 # Model files and function:
 # Projection.R - central MSE file, calls all other files to run operating model and assessment model, run projections
 # Functions.R - contains all operating model functions
