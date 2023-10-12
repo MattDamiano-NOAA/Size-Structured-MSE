@@ -7,6 +7,8 @@
 # This repository contains R files for the generalized size-structured operating models developed by Damiano et al. (2023) and conditioned to mimic the most recent stock assessment for black sea bass (2023), and the size-structured stock assessment ADMB file developed by Cao et al. (2017). 
 
 # Model files and function:
+
+# R files:
 # Projection.R - central MSE file, calls all other files to run operating model and assessment model, run projections
 # Functions.R - contains all operating model functions
 # Input.data.R - sets up inputs to be used in functions to condition the operating model
@@ -15,6 +17,9 @@
 # Input.data.update.R - updates certain vectors, matrices, and arrays of inputs for projections
 # Mse.proj.R - contains key function for mse projections: projects population dynamics, catches, and surveys
 # Data.gen.proj.R - similarly, re-runs certain functions and updates .dat files for assessments in projections
+
+# AD Model Builder files:
+# NSLSAP01: .tpl file containing the size-structured assessment model. Must be compiled externally using a program like EMACS.
 
 # For a complete description of how the operating models work, see Damiano et al. (2023) in Fisheries Research (intent to submit Oct 2023), and for a complete description of the assessment model, see Cao et al.'s paper: Improving assessment of Pandalus stocks using a seasonal, size-structured assessment model with environmental variables. Part I: Model description and application https://doi.org/10.1139/cjfas-2016-0020
 
