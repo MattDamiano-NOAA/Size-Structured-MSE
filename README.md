@@ -1,4 +1,4 @@
-# Size-Structured-MSE
+# Size-Structured-MSE for common dolphinfish (Coryphaena hippurus)
 
 # This repository contains the project files for the size-structured management strategy evaluation (MSE) tool that was developed for a NOAA Marine Fisheries Initiative (MARFIN) project during 2019-2023.
 
