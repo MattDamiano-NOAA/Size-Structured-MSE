@@ -139,7 +139,7 @@ ned <- c(0,0,0,0,0,0.1,0.9)
 sar <- c(0,0,0,0,0.7,0,0.3)
 
 # combine columns to create the movement matrix
-mov.mat1 <- rbind(va.mon,n.nc,wm.ga,s.fl,car,ned,sar) # movement matrix
+mov.mat <- rbind(va.mon,n.nc,wm.ga,s.fl,car,ned,sar) # movement matrix
 
 # Season 2 movement matrix (Sp)
 # Spring movement assumptions: fish present in CAR-N.NC, moving north and west
