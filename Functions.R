@@ -312,7 +312,7 @@ get_ssb.fracs <- function(ssb_month,n_s)
 ############### pop dyn ##########################
 # Central population dynamics function
 # Calculates abundance (N) at size, recruitment (R), and SSB
-pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight_m,alpha,beta,indicator,R_devs_v,R_l_pro,n_t,n_s,n_r,n_growblock,growth_array,mov.mat)
+pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight_m,alpha,beta,indicator,R_devs_v,R_l_pro,n_t,n_s,n_r,n_growblock,growth_array,mov.mat,mov.mat2,mov.mat3,mov.mat4)
 { 
   N_3d = array(0,c(n_t,n_l,n_s,n_r))
   SSB  = c()
@@ -321,7 +321,7 @@ pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight
   for (t in 1:n_t){
     
     if(t>1)
-      R[t] = get_R(SSB[t-1],alpha,beta,indicator) #*exp(R_devs_v[t])
+      R[t] = get_R(SSB[t-1],alpha,beta,indicator)*exp(R_devs_v[t])
     
     for (s in 1:n_s){
       
@@ -418,7 +418,7 @@ pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight
       }
   
   #If there is seasonality in the model config. 
-  if(s>1){
+  if(s==2){
     # s=2
     # t=1
     N_3d[t,,s,1]=(N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[1,2:7]))+
@@ -477,7 +477,124 @@ pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight
       (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,5]+
       (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,6]
   }
-    
+      if(s==3){
+        # s=2
+        # t=1
+        N_3d[t,,s,1]=(N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat3[1,2:7]))+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[1,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[1,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[1,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[1,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[1,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[1,7]
+        
+        N_3d[t,,s,2]=(N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat3[2,1],mov.mat2[2,3:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[2,1]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[2,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[2,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[2,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[2,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[2,7]
+        
+        N_3d[t,,s,3]=(N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat3[3,1:2],mov.mat2[3,4:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[3,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[3,2]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[3,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[3,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[3,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[3,7]
+        
+        N_3d[t,,s,4]=(N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat3[4,1:3],mov.mat2[4,5:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[4,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[4,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[4,3]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[4,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[4,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[4,7]
+        
+        N_3d[t,,s,5]=(N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat3[5,1:4],mov.mat2[5,6:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[5,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[5,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[5,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[5,4]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[5,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[5,7]
+        
+        N_3d[t,,s,6]=(N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat3[6,1:5],mov.mat2[6,7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[6,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[6,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[6,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[6,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[6,5]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[6,7]
+        
+        N_3d[t,,s,7]=(N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat3[7,1:6]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[7,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[7,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[7,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[7,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[7,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat3[7,6]
+      }
+      if(s==4){
+        # s=2
+        # t=1
+        N_3d[t,,s,1]=(N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat4[1,2:7]))+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[1,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[1,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[1,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[1,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[1,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[1,7]
+        
+        N_3d[t,,s,2]=(N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat4[2,1],mov.mat4[2,3:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[2,1]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[2,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[2,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[2,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[2,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[2,7]
+        
+        N_3d[t,,s,3]=(N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat4[3,1:2],mov.mat4[3,4:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[3,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[3,2]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[3,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[3,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[3,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[3,7]
+        
+        N_3d[t,,s,4]=(N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat4[4,1:3],mov.mat4[4,5:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[4,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[4,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[4,3]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[4,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[4,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[4,7]
+        
+        N_3d[t,,s,5]=(N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat4[5,1:4],mov.mat4[5,6:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[5,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[5,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[5,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[5,4]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[5,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[5,7]
+        
+        N_3d[t,,s,6]=(N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat4[6,1:5],mov.mat4[6,7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[6,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[6,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[6,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[6,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[6,5]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[6,7]
+        
+        N_3d[t,,s,7]=(N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat4[7,1:6]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,6]
+      }
     if(s==SSB_frac_v[2]&n_s>1){ # for now, SSB is summed across all regions and season to an annual metric
       SSB[t] = sum(N_3d[t,,s,]*exp(-SSB_frac_v[3]*(F_3d[t,,s]+M_m[t,,s]))*maturity_m[t,]*weight_m[t,]) 
     }

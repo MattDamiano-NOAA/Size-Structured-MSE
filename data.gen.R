@@ -2,56 +2,47 @@
 # Dolphinfish OM: data generation file
 # Last modified: 9-19-2023 by M. Damiano
 
-# Content includes all .dat generating files from original Pandalus OM
-# Maintain all data generation functions but populate with zeros as needed
-# otherwise, just need to make sure that the following are true:
-# 1. terms are consistent with other OM files
-# 2. any terms not declared must be declared with a 0 or some designation so that it exists but not in use. 
-
 # Call OM functions to produce values for data gen
+# Call weight-length relationship function to get weight matrix: weight_m
 weight_m <- get_weight(WL_pars_m,size_bm,n_t)
 # plot(weight_m[1,])
+# Call maturity function to get maturity matrix: maturity_m
 maturity_m <- get_matu_prop(fe_prop_pars_m,size_bm,n_t)
 # plot(maturity_m[1,])
-# fec_mat <- get_fec(fec_pars_m,size_bm,weight_m,n_t)
-# plot(fec_mat[1,])
+# Call natural mortality function to get M matrix: M_m
 M_m <- get_M(M_size_v,M_year_v)
-# sel_switch = 2
-sels <- cal_sels(log_pars,sel_switch,dome_pars,size_bm)
-# plot(size_bm,sels)
-survey_sels <-cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm)
-# plot(survey_sels)
-# sels_4D <- get_sels(sel_pars_v,sel_switch,switch_v,n_fleets,size_bm,n_s,n_t,n_l)
-# sels_4D
+# Call F functions and check F_4d and F_3d objects, F_inits/deviations
 f_obj <- get_F(F_array,sels_4d,n_fleets,size_bm,n_s,n_t,n_l)
 F_3d <- f_obj$F_3d
-F_check2 <- F_3d
 F_4d <- f_obj$F_4d
 f_inits.obj <- get_F_inits(F_array)
+# Call growth transition matrix function and check growth_array
 GM <- cal_GM(Lmin,Lmax,Linc,Linf,SELinf,K,SEK,rhoLinfK)
 grow_3d <- get_GM(n_l,n_t,Lmin,Lmax,Linc,Linf_v,SELinf_v,K_v,SEK_v,rhoLinfK_v)
-growth_array = grow_3d
+growth_array = grow_3d # which name it has doesn't really matter, as long as it's used when calling the PopDy function
 # growth_array
 SSB_frac_v <- get_ssb.fracs(ssb_month, n_s)
-PopDy <- pop_dyn(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight_m,alpha,beta,indicator,R_devs_v,R_l_pro,n_t,n_s,n_r,n_growblock,growth_array,mov.mat)
-N_3d <- PopDy$Abundance
-# sum(N_3d[1,])
-# add.error = TRUE
+PopDy <- pop_dyn(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight_m,alpha,beta,indicator,R_devs_v,R_l_pro,n_t,n_s,n_r,n_growblock,growth_array,mov.mat,mov.mat2,mov.mat3,mov.mat4)
+N_3d <- PopDy$Abundance # PopDy is the object containing recruitment, abundance, and SSB
+# Check catch object
 catch.obj <- cal_catch(f_obj,M_m,N_3d,n_t,n_l,n_s,n_fleets,n_r)
+# catch.obj contains catch at size by fleet
 catch_4d <- catch.obj$catch_4d
+# and total catch (size-aggregated) by fleet
 catch_3d <- catch.obj$catch_3d
 # survey_frac_v <- get_survey.fracs(survey_months_v,n_survey,n_s)
 # survey.obj <- cal_survey_inds(N_3d,F_3d,M_m,survey_frac_v,survey_q_v,survey_sel_switch,survey_sel_pars,dome_pars,survey_periods,size_bm,n_survey,n_s,n_t,n_l,n_r)
 # survey.obj
 
 # test obs error function
-data <- catch_3d
-cv = 0.3
-data.error <- add.error.lognormal(data,cv)
-# works great
-rel.err <- (data.error-catch_3d)/catch_3d
-mean(rel.err)
+# data <- catch_3d
+# cv = 0.3
+# data.error <- add.error.lognormal(data,cv)
+# # works great
+# rel.err <- (data.error-catch_3d)/catch_3d
+# mean(rel.err)
 
+# 
 cpue_array <- get_cpue(catch_3d, eff_switch_v, eff_array)
 
 index <- get.fitted.pred.index(ind.vast,N_3d,F_3d,M_m,survey_frac_v,survey_q_v,survey_sel_switch,survey_sel_pars,dome_pars,survey_periods,size_bm,n_survey,n_s,n_t,n_l,n_r)
