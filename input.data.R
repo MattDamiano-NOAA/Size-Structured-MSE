@@ -462,7 +462,8 @@ survey_frac_v[4] = (survey_months_v[4]+1)/12
 survey_sels <-cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm)
 
 # read in VAST indices
-d <- read.csv('C:/Users/matt.damiano/Desktop/Dolphinfish MSE/Data/VASTindex.csv')
+# d <- read.csv('C:/Users/matt.damiano/Desktop/Dolphinfish MSE/Data/VASTindex.csv')
+d <- read.csv('./VASTindex.csv')
 
 # d <- as.data.frame(cbind(ind.vast$NED,ind.vast$VBMN,ind.vast$NNC,ind.vast$NCFL,ind.vast$SAR,ind.vast$FLK,ind.vast$CAR))
 # This isn't enough - you need to get it into a 37 x 4 x 7 array
