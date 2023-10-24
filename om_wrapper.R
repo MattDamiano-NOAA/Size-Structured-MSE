@@ -4,7 +4,7 @@
 
 # set your OM directory to where you store all three OM files
 
-om.dir = "C:/Users/matt.damiano/Desktop/Dolphinfish MSE/OM files"
+om.dir = "./GitHub/Size-Structured-MSE"
 
 # set working directory
 
@@ -17,9 +17,9 @@ source("Functions.r")
 n.iter = 5
 
 # create an array to store your spawning stock biomass "estimates"
-ssb.array <- array(NA, dim = c(37, n.iter)) # since we haven't called the input file yet, 
-# which contains the other model dimensions, let's give it the length of 
-# the annual time series (37), and the number of iterations we want to run the 
+ssb.array <- array(NA, dim = c(37, n.iter)) # since we haven't called the input file yet,
+# which contains the other model dimensions, let's give it the length of
+# the annual time series (37), and the number of iterations we want to run the
 #simulation for (100/'n.iter')
 abundance.array <- array(NA, dim = c(37, 20, 4, 7, n.iter))
 
@@ -31,12 +31,12 @@ rec.sto = TRUE # try this with and without stochasticity
 iter = 1
 
 while(iter<=n.iter){
-  
+
   source("input.data.r") # run input file
   source("data.gen.R") # produces results for OM
   ssb.array[,iter] = PopDy$SSB # store SSB for each iteration
   abundance.array[,,,,iter] = PopDy$Abundance
-  iter = iter+1 # update counter 
+  iter = iter+1 # update counter
 }
 
 # jitter plot to visualize (stochastic) results
