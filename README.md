@@ -21,6 +21,6 @@
 # AD Model Builder files:
 # NSLSAP01: .tpl file containing the size-structured assessment model. Must be compiled externally using a program like EMACS.
 
-# For a complete description of how the operating models work, see Damiano et al. (2023) in Fisheries Research (intent to submit Oct 2023), and for a complete description of the assessment model, see Cao et al.'s paper: Improving assessment of Pandalus stocks using a seasonal, size-structured assessment model with environmental variables. Part I: Model description and application https://doi.org/10.1139/cjfas-2016-0020
+# For a complete description of how the operating models work, see Damiano et al. (2023) in Fisheries Research (in review), and for a complete description of the assessment model, see Cao et al.'s paper: Improving assessment of Pandalus stocks using a seasonal, size-structured assessment model with environmental variables. Part I: Model description and application https://doi.org/10.1139/cjfas-2016-0020
 
 # Model notes and updates will be catalogued in this read.me 
