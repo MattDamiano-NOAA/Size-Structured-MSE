@@ -60,7 +60,7 @@ n_l = length(size_bm)
 WL_pars_m = matrix(NA, nrow = n_t, ncol = 2)
 for (n in 1:n_t)
 {
-  WL_pars_m[n,]=c(log(2e-8),2.8) # parameters an avg based on several studies outlined in Oxenford (1999)
+  WL_pars_m[n,] = c(log(2e-8),2.8) # parameters an avg based on several studies outlined in Oxenford (1999)
 }
 weight_m <- get_weight(WL_pars_m,size_bm,n_t)
 # check
@@ -75,9 +75,9 @@ inter = 6.5 # same as ^
 
 # set maturity parameters - need to re-name later
 fe_prop_pars_m = matrix(NA, nrow = n_t, ncol = 2)
-for(n in 1:n_t)
+for (n in 1:n_t)
 {
-  fe_prop_pars_m[n,]=c(L50, inter)
+  fe_prop_pars_m[n,] = c(L50, inter)
 }
 fe_prop_pars_m # check
 
@@ -222,8 +222,8 @@ sels <- cal_sels(log_pars,sel_switch,priv_rec_sel_N,size_bm)
 # 10-10-2023: 6 fleets for now: commercial, private rec N & S, for hire N & S, and general discard
 # No spatial structure for now; can use areas as fleets approach later
 sels_4d = array(NA,c(n_t,n_l,n_s,6)) # haven't defined 'n_fleets' yet
-for (s in 1:n_s){
-  for (t in 1:n_t){
+for (s in 1:n_s) {
+  for (t in 1:n_t) {
     sels_4d[t,,s,1] = cal_sels(pll_comm_sel, 2, dome_pars, size_bm) # commercial
     sels_4d[t,,s,2] = cal_sels(log_pars, 3, priv_rec_sel_N, size_bm) # private N
     sels_4d[t,,s,3] = cal_sels(priv_rec_sel_S, 2, dome_pars, size_bm) # private S
@@ -291,8 +291,8 @@ rhoLinfK = 0.5
 Linf_v = matrix(Linf,nrow = n_t, ncol = 1)
 SELinf_v = matrix(SELinf, nrow = n_t, ncol = 1)
 K_v = matrix(K, nrow = n_t, ncol = 1)
-SEK_v = matrix(SEK, nrow=n_t, ncol = 1)
-rhoLinfK_v = matrix(rhoLinfK, nrow = n_t, ncol=1)
+SEK_v = matrix(SEK, nrow = n_t, ncol = 1)
+rhoLinfK_v = matrix(rhoLinfK, nrow = n_t, ncol = 1)
 # set growth blocks to time-varying block
 n_growblock = n_block
 # matrix of growblocks for data generation
@@ -315,15 +315,15 @@ alpha = 10000000 # we don't actually know this number
 R_devs_v = matrix(NA, nrow = n_t, ncol = 1) # deviations in mean recruitment
 sd_recdevs = 1
 rec.sto = TRUE # stochastic mean recruitment?
-if(rec.sto == FALSE){
+if (rec.sto == FALSE){
   alpha = alpha
-  for(t in 1:n_t){
+  for (t in 1:n_t){
     R_devs_v[t] <- 0
   }
 } else {
   ln.rec <- rnorm(1, mean = log(alpha), sd = sd_recdevs)
   alpha = exp(ln.rec)
-  for(t in 1:n_t){
+  for (t in 1:n_t){
     R_devs_v[t] <- rnorm(1, 0, 1)
   }
 }
@@ -383,24 +383,24 @@ env_data = matrix(0, nrow = n_t, ncol = n_env)
 x <- seq(1,n_t,1)
 
 # polynomial  private rec north of FL (effort in directed trips)
-p_rec_eff_N <- -1251.1*(x^2)+48606*x+1e06
+p_rec_eff_N <- -1251.1*(x^2) + 48606*x + 1e06
 # plot(p_rec_eff_N, ylim = c(0,2500000))
 
 # polynomial private rec in FL and east (includes PR)
-p_rec_eff_S <- -22.6*(x^2)+5253.3*x - 18633
+p_rec_eff_S <- -22.6*(x^2) + 5253.3*x - 18633
 # plot(p_rec_eff_S, ylim = c(0,250000)) # check
 
 # logarithmic for-hire north of FL (effort in directed trips)
 p_x <- log(x)
-fh_rec_eff_N <- 3692.2*p_x-1432.3 # this is the simplest thing to do: take the slope and int from Excel fits
+fh_rec_eff_N <- 3692.2*p_x - 1432.3 # this is the simplest thing to do: take the slope and int from Excel fits
 # plot(fh_rec_eff_N, ylim = c(0,20000)) # check
 
 # polynomial for-hire rec in FL and south (includes PR)
-fh_rec_eff_S <- 112.04*(x^2)+-5355.3*x+104038
+fh_rec_eff_S <- 112.04*(x^2) + -5355.3*x + 104038
 # plot(fh_rec_eff_S, ylim = c(0,120000)) # check
 
 # polynomial for commercial pll (effort in 1000s of hooks)
-pll_comm_eff <- -2.74*(x^2)+48*x+4675
+pll_comm_eff <- -2.74*(x^2) + 48*x + 4675
 # plot(pll_comm_eff, ylim = c(0,9000)) # check
 
 # assume discards track with N of FL rec for now
@@ -418,7 +418,7 @@ pll_comm_eff <- -2.74*(x^2)+48*x+4675
 eff_switch_v <- c(1,2,3,4,5,3) # set it to match up with F_init_v
 
 # make an array to input to the function
-eff_array <- array(NA, dim=c(n_t,n_fleets))
+eff_array <- array(NA, dim = c(n_t,n_fleets))
 eff_array[,1] <- pll_comm_eff
 eff_array[,2] <- p_rec_eff_N
 eff_array[,3] <- p_rec_eff_S
@@ -448,18 +448,18 @@ for (n in 1:n_t)
 survey_sel_switch = 2
 # generate survey period (time series of when survey took place)
 survey_periods = matrix(NA, ncol = 2, nrow = n_survey)
-for(n in 1:n_survey)
+for (n in 1:n_survey)
 {
   survey_periods[n,] = c(1986, terminal_year)
 }
 
 # call survey fractions
 survey_frac_v <- c()
-survey_frac_v[1] = (survey_months_v[1]+1)/12
-survey_frac_v[2] = (survey_months_v[2]+1)/12
-survey_frac_v[3] = (survey_months_v[3]+1)/12
-survey_frac_v[4] = (survey_months_v[4]+1)/12
-survey_sels <-cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm)
+survey_frac_v[1] = (survey_months_v[1] + 1)/12
+survey_frac_v[2] = (survey_months_v[2] + 1)/12
+survey_frac_v[3] = (survey_months_v[3] + 1)/12
+survey_frac_v[4] = (survey_months_v[4] + 1)/12
+survey_sels <- cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm)
 
 # read in VAST indices
 d <- read.csv('data/VASTindex.csv')
@@ -480,7 +480,7 @@ fall <- d %>% filter(Season == "Fall")
 fall[is.na(fall)] <- 0
 
 # decided to brute force it because more like tedi(ous)verse, amirite?
-ind.vast <- array(NA,dim=c(n_t,n_s,n_r))
+ind.vast <- array(NA,dim = c(n_t,n_s,n_r))
 # Set northern high seas index
 ind.vast[,1,1] <- fall$NED
 ind.vast[,2,1] <- winter$NED
