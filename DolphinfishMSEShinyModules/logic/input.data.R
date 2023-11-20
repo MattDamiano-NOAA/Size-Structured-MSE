@@ -2,118 +2,57 @@
 # Dolphinfish OM: Input data file
 # Last modified: 10-11-2023 by M. Damiano
 
-# Run functions file first to test inputs below as needed
-
-# Model dimensions
 initial_year <- 1986
 terminal_year <- 2022
 
-# set the number of years
-years = rep(initial_year:terminal_year)
-
-# set annual time step
-n_t = length(years)
-
-# set start year
-year_start = years[1]
-
+years = rep(initial_year:terminal_year) # set the number of years
+years_count = length(years) # set annual time step
+year_start = years[1] # set start year
 year_end = tail(years, n = 1) # a bit redundant, but there it is
 
-# set seasonal timestep; 1=no seasonality
-n_s = 4
-# set blocks for time-varying quantities, parameters; 1=no blocks
-n_block = 1
+n_s = 4 # set seasonal timestep; 1=no seasonality
+n_block = 1 # set blocks for time-varying quantities, parameters; 1=no blocks
 
-# number of regions for spatially-explicit model
-n_r = 7
-# we may want 8 to split the Caribbean into north and south later
-
-# if using blocks...
-# block_array = array(1, dim=3)
-
-# set size bins
-# when you calculate selectivity, you're using the midpoint of each size class;
-# anything size-based, you want to use the midpoint, not just sels, maturity,
-# growth, etc.
-
-# define size bins
-# For dolphinfish, makes most sense to use inches (avoid conversion)
-# Based on MRIP data, I think 5-75 inches is a safe range ~ 100 - 2000mm
-# mm units will keep it consistent with life history info
-
-size_bins = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-              1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
-              2000)
-
-# midpoints
-size_bm = c(150, 250, 350, 450, 550, 650, 750, 850, 950, 1050, 1150,
-            1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050)
-
-# set length structure variable based on number of size bins
-n_l = length(size_bm)
+n_r = 7 # number of regions for spatially-explicit model (we may want 8 to split the Caribbean into north and south later)
+size_bins = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000) # define size bins
+size_bm = c(150, 250, 350, 450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050) # midpoints
+n_l = length(size_bm) # set length structure variable based on number of size bins
 
 # Biological specifications
 
 ########### Weight-Length #################
 # set weight-length relationship parameters
-WL_pars_m = matrix(NA, nrow = n_t, ncol = 2)
-for (n in 1:n_t)
+WL_pars_m = matrix(NA, nrow = years_count, ncol = 2)
+for (n in 1:years_count)
 {
   WL_pars_m[n,] = c(log(2e-8),2.8) # parameters an avg based on several studies outlined in Oxenford (1999)
 }
-weight_m <- get_weight(WL_pars_m,size_bm,n_t)
-# check
-# plot(size_bm,weight_m[1,])
+weight_m <- get_weight(WL_pars_m,size_bm,years_count)
 
 ########### Maturity #################
-
 # Define maturity parameters (for calculating SSB, not for yield)
-L50 = 465 # based on avg of male and female L50 from Schwenke & Buckel (2008)
+L50 = 465 # based on avg of male and female L50 from Schwenke & Buckel (2008), Dolphinfish fork length @ 50% maturity
 inter = 6.5 # same as ^
-# inter = quantile(size_bm, 0.75)-quantile(size_bm,0.25) #interquartile range for use in the maturity function
 
 # set maturity parameters - need to re-name later
-fe_prop_pars_m = matrix(NA, nrow = n_t, ncol = 2)
-for (n in 1:n_t)
-{
+fe_prop_pars_m = matrix(NA, nrow = years_count, ncol = 2)
+for (n in 1:years_count) {
   fe_prop_pars_m[n,] = c(L50, inter)
 }
-fe_prop_pars_m # check
 
-# check
-maturity_m <- get_matu_prop(fe_prop_pars_m,size_bm,n_t)
-# plot(size_bm, maturity_m[1,])
+maturity_m <- get_matu_prop(fe_prop_pars_m,size_bm,years_count)
 
-# No fecundity info available for dolphinfish that I'm aware of, so ignore
-
-# added fecundity function 12/21/2021
-# fec_a = 7.69 # placeholder values for realistic relationship
-# fec_b = 0.0053
-# fec_pars_m = matrix(NA, nrow = n_t, ncol = 2)
-# for(n in 1:n_t)
-# {
-#   fec_pars_m[n,]=c(fec_a, fec_b)
-# }
-# fec_mat <- get_fec(fec_pars_m, size_bm, weight_m, n_t)
-# plot(fec_mat[1,]) # basically gives us a straight line - MD 12-21-2021
 
 ########### Natural Mortality #################
 # Molto et al. 2022 suggest M can be as high as 0.25 per month (1.00 per quarter?)
 # set M to seasonal value of 1.00 for now
 # annual M of 4.00 isn't far off from what Oxenford (1999) report, which is around 3.5
-M_year_v = matrix(1, nrow = n_t, ncol = 1) # keep these dimensions and just apply M each season - same effect
-# matrix for size effect on M
-M_size_v = matrix(1, nrow = 1, ncol = n_l)
-
-# check
-M_m <- get_M(M_size_v,M_year_v)
+M_year_v = matrix(1, nrow = years_count, ncol = 1) # keep these dimensions and just apply M each season - same effect
+M_size_v = matrix(1, nrow = 1, ncol = n_l) # matrix for size effect on M
 
 ########### Movement #################
-
 # columns represent movement to each region
-
-# 10-11-2023: naive movement matrices based on assumptions, not expert opinion
-# fine tune based on expert opinion later
+# 10-11-2023: naive movement matrices based on assumptions, not expert opinion. fine tune based on expert opinion later
 
 # season 1 movement matrix (W)
 # Winter movement assumptions: fish mostly showing up in CAR,
@@ -198,8 +137,9 @@ mov.mat4 <- rbind(va.mon,n.nc,wm.ga,s.fl,car,ned,sar)
 # choose selectivity parameters
 
 # fleets with logistic selectivity - based on length frequency data
+# selectivity = likelihood of catching certain indivs during a fishing operation
 log_pars = c(100, 0.1) # dummy when not using logistic pars
-pll_comm_sel = c(800, 0.005) # based on US PLL (comm)
+pll_comm_sel = c(800, 0.005) # based on US PLL (comm) - U.S. Pelagic Long Line commercial selectivity
 priv_rec_sel_S = c(740, 0.01) # based on PR & FL length dist (MRIP)
 
 # fleets with dome-shaped selectivity
@@ -220,9 +160,9 @@ sels <- cal_sels(log_pars,sel_switch,priv_rec_sel_N,size_bm)
 
 # 10-10-2023: 6 fleets for now: commercial, private rec N & S, for hire N & S, and general discard
 # No spatial structure for now; can use areas as fleets approach later
-sels_4d = array(NA,c(n_t,n_l,n_s,6)) # haven't defined 'n_fleets' yet
+sels_4d = array(NA,c(years_count,n_l,n_s,6)) # haven't defined 'n_fleets' yet
 for (s in 1:n_s) {
-  for (t in 1:n_t) {
+  for (t in 1:years_count) {
     sels_4d[t,,s,1] = cal_sels(pll_comm_sel, 2, dome_pars, size_bm) # commercial
     sels_4d[t,,s,2] = cal_sels(log_pars, 3, priv_rec_sel_N, size_bm) # private N
     sels_4d[t,,s,3] = cal_sels(priv_rec_sel_S, 2, dome_pars, size_bm) # private S
@@ -252,13 +192,13 @@ F_init_v <- c(0.1, 0.3, 0.3, 0.05, 0.05, 0.05)
 # Fleets: commercial, private rec N, private rec S, for-hire N, for-hire S, discard
 n_fleets = length(F_init_v)
 
-F_array = array(NA,c(n_t,n_s,n_fleets))
-F_array[1:n_t,,1] <- F_init_v[1]
-F_array[1:n_t,,2] <- F_init_v[2]
-F_array[1:n_t,,3] <- F_init_v[3]
-F_array[1:n_t,,4] <- F_init_v[4]
-F_array[1:n_t,,5] <- F_init_v[5]
-F_array[1:n_t,,6] <- F_init_v[6]
+F_array = array(NA,c(years_count,n_s,n_fleets))
+F_array[1:years_count,,1] <- F_init_v[1]
+F_array[1:years_count,,2] <- F_init_v[2]
+F_array[1:years_count,,3] <- F_init_v[3]
+F_array[1:years_count,,4] <- F_init_v[4]
+F_array[1:years_count,,5] <- F_init_v[5]
+F_array[1:years_count,,6] <- F_init_v[6]
 # F_check1 <- F_array
 
 ########### Growth #################
@@ -287,16 +227,16 @@ SEK = 0.08
 # correlation between Linf and K, we don't know this, but we do know that the parameters are highly correlated
 rhoLinfK = 0.5
 # for time-varying growth, create matrices for VBGF parameters - probably won't use
-Linf_v = matrix(Linf,nrow = n_t, ncol = 1)
-SELinf_v = matrix(SELinf, nrow = n_t, ncol = 1)
-K_v = matrix(K, nrow = n_t, ncol = 1)
-SEK_v = matrix(SEK, nrow = n_t, ncol = 1)
-rhoLinfK_v = matrix(rhoLinfK, nrow = n_t, ncol = 1)
+Linf_v = matrix(Linf,nrow = years_count, ncol = 1)
+SELinf_v = matrix(SELinf, nrow = years_count, ncol = 1)
+K_v = matrix(K, nrow = years_count, ncol = 1)
+SEK_v = matrix(SEK, nrow = years_count, ncol = 1)
+rhoLinfK_v = matrix(rhoLinfK, nrow = years_count, ncol = 1)
 # set growth blocks to time-varying block
 n_growblock = n_block
 # matrix of growblocks for data generation
-growblock_m <- matrix(NA, nrow = n_t, ncol = n_growblock)
-growth_array <- get_GM(n_l,n_t,Lmin,Lmax,Linc,Linf_v,SELinf_v,K_v,SEK_v,rhoLinfK_v)
+growblock_m <- matrix(NA, nrow = years_count, ncol = n_growblock)
+growth_array <- get_GM(n_l,years_count,Lmin,Lmax,Linc,Linf_v,SELinf_v,K_v,SEK_v,rhoLinfK_v)
 # check matrix
 growth_array[,,1]
 # check that all columns sum to 1
@@ -311,18 +251,18 @@ rowSums(growth_array[,,1])
 ########### Recruitment #################
 # Define recruitment parameters
 alpha = 10000000 # we don't actually know this number
-R_devs_v = matrix(NA, nrow = n_t, ncol = 1) # deviations in mean recruitment
+R_devs_v = matrix(NA, nrow = years_count, ncol = 1) # deviations in mean recruitment
 sd_recdevs = 1
 rec.sto = TRUE # stochastic mean recruitment?
 if (rec.sto == FALSE){
   alpha = alpha
-  for (t in 1:n_t){
+  for (t in 1:years_count){
     R_devs_v[t] <- 0
   }
 } else {
   ln.rec <- rnorm(1, mean = log(alpha), sd = sd_recdevs)
   alpha = exp(ln.rec)
-  for (t in 1:n_t){
+  for (t in 1:years_count){
     R_devs_v[t] <- rnorm(1, 0, 1)
   }
 }
@@ -341,7 +281,7 @@ ssb_month = 3
 # be zero in the initial population by size vector.
 N_init_tot = 3000000 # slightly higher than max estimated catch in private rec fishery MRIP time series
 
-# initial composition is arbitrary for now, will probably need multiple hypotheses to quantify uncerainty
+# initial composition is arbitrary for now, will probably need multiple hypotheses to quantify uncertainty
 #100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000
 N_init_comp = c(0.2, 0.125, 0.1, 0.1, 0.1, 0.1, 0.050, 0.050, 0.025, 0.025, 0.025, 0.0125, 0.0125, 0.0125, 0.0125, 0.01, 0.01, 0.01, 0.01, 0.01)
 # check that it sums to 1.0
@@ -368,7 +308,7 @@ n_env = 3
 
 # environmental data matrix (year x n_env)
 # consider putting tripole data here for use later
-env_data = matrix(0, nrow = n_t, ncol = n_env)
+env_data = matrix(0, nrow = years_count, ncol = n_env)
 
 ########### Effort (for CPUE calcs) #################
 # test case is private rec effort, which looks logarithmic
@@ -379,7 +319,7 @@ env_data = matrix(0, nrow = n_t, ncol = n_env)
 # and then look at it without effort information to see if it even matters (to the MSE and MP)
 
 # pars in each simulated effort dataset come from fits in Excel (i.e., tested add trendline until I got the best r-squared)
-x <- seq(1,n_t,1)
+x <- seq(1,years_count,1)
 
 # polynomial  private rec north of FL (effort in directed trips)
 p_rec_eff_N <- -1251.1*(x^2) + 48606*x + 1e06
@@ -417,7 +357,7 @@ pll_comm_eff <- -2.74*(x^2) + 48*x + 4675
 eff_switch_v <- c(1,2,3,4,5,3) # set it to match up with F_init_v
 
 # make an array to input to the function
-eff_array <- array(NA, dim = c(n_t,n_fleets))
+eff_array <- array(NA, dim = c(years_count,n_fleets))
 eff_array[,1] <- pll_comm_eff
 eff_array[,2] <- p_rec_eff_N
 eff_array[,3] <- p_rec_eff_S
@@ -437,8 +377,8 @@ survey_q_v = rep(1E-6,7) # starting q is the same for all regional indices for n
 # select survey selectivity parameters
 survey_sel_pars = c(500, 0.3) # assuming knife-edged logistic sel with L50 = 500 mm, approx 20 inches
 # matrix of survey sel pars
-survey_sel_pars_m = matrix(NA, ncol = 2, nrow = n_t)
-for (n in 1:n_t)
+survey_sel_pars_m = matrix(NA, ncol = 2, nrow = years_count)
+for (n in 1:years_count)
 {
   survey_sel_pars_m[n,] = c(500, 0.3)
 }
@@ -479,7 +419,7 @@ fall <- d %>% filter(Season == "Fall")
 fall[is.na(fall)] <- 0
 
 # decided to brute force it because more like tedi(ous)verse, amirite?
-ind.vast <- array(NA,dim = c(n_t,n_s,n_r))
+ind.vast <- array(NA,dim = c(years_count,n_s,n_r))
 # Set northern high seas index
 ind.vast[,1,1] <- fall$NED
 ind.vast[,2,1] <- winter$NED
@@ -535,12 +475,12 @@ s.cv = 0.27
 # year_start = 1978
 # year_end = 2017
 # create arrays of catch cv and ess by year, fleet and season
-catch.cv = array(cv, c(n_t, n_fleets, n_s))
-catch.ess = array(ess, c(n_t, n_fleets, n_s))
+catch.cv = array(cv, c(years_count, n_fleets, n_s))
+catch.ess = array(ess, c(years_count, n_fleets, n_s))
 # generate data with error: set to TRUE or FALSE
 # add.error = FALSE # This needs to be commented out during MSE loop (MD 12-23-21)
 # create arrays of survey cv and ess by year, survey and season
-survey.cv = array(s.cv, c(n_t, n_s, n_survey))
-survey.ess = array(ess, c(n_t, n_s, n_survey))
+survey.cv = array(s.cv, c(years_count, n_s, n_survey))
+survey.ess = array(ess, c(years_count, n_s, n_survey))
 
 

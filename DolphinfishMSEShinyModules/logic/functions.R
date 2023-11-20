@@ -1,9 +1,3 @@
-initial_year <- function() {
-  1986
-}
-terminal_year <- function() {
-  2022
-}
 # Dolphinfish MSE
 # Dolphinfish OM: functions file
 # Last modified: 10-12-2023 by M. Damiano
@@ -18,7 +12,7 @@ get_weight <- function(WL_pars_m,size_bm,n_t)
   weight_m = matrix(NA,nrow=n_t,ncol=length(size_bm))
   for (t in 1:n_t)
   {
-    weight_m[t,] = exp(WL_pars_m[t,1]+WL_pars_m[t,2]*log(size_bm)) #should create a year x size matrix of weight at length (k) for each year, time invariant
+    weight_m[t,] = exp(WL_pars_m[t,1] + WL_pars_m[t,2]*log(size_bm)) #should create a year x size matrix of weight at length (k) for each year, time invariant
   }
   return(weight_m)
 }
@@ -32,7 +26,7 @@ get_matu_prop <- function(fe_prop_pars_m,size_bm,n_t) #fe_prop_pars_m is a 1x2 m
   # per_fem = matrix(NA,nrow=n_t,ncol=length(size_bm)) # remnant from using this for sex change in protogynous fish
   for (t in 1:n_t)
   {
-    maturity_m[t,] = (1/(1+exp(-2*log(3)*(size_bm-fe_prop_pars_m[t,1])/fe_prop_pars_m[t,2])))
+    maturity_m[t,] = (1 / (1 + exp(-2 * log(3) * (size_bm - fe_prop_pars_m[t,1]) / fe_prop_pars_m[t,2])))
     # per_fem[t,] = 1-(1/(1+exp(-2*log(3)*(size_bm-F50)/fe_prop_pars_m[t,2])))
   }
   return(maturity_m)
@@ -73,24 +67,24 @@ get_M <- function(M_size_v,M_year_v) #vectors of mortality by season, size and y
 # Uses the switch to determine if the right number of parameters have been input
 cal_sels <- function(sel_pars_v,sel_switch,dome_pars,size_bm) #pars_v contains the two parameters for a logistic selectivity curve. This is fine given that fleets for BSB follow this pattern
 {
-    if (sel_switch==2&length(sel_pars_v)!=2)
+  if (sel_switch==2&length(sel_pars_v)!=2)
     stop("check # of parameters")
 
-    if (sel_switch==3&length(dome_pars)!=4)
+  if (sel_switch==3&length(dome_pars)!=4)
     stop("check # of parameters for dome")
 
-    sels <- array(NA, n_l)
+  sels <- array(NA, n_l)
 
-    if (sel_switch==2) { # if logistic/flat-topped
-      sels <- 1.0/(1.0+exp((sel_pars_v[1]- size_bm)* sel_pars_v[2])); #Gives a selectivity by length, changes pars_v[2] to negative to reflect logistic curve.
-      #Think of slope as how fast sel increases with size
-      sels <- sels/max(sels)
-    }
+  if (sel_switch==2) { # if logistic/flat-topped
+    sels <- 1.0/(1.0+exp((sel_pars_v[1]- size_bm)* sel_pars_v[2])); #Gives a selectivity by length, changes pars_v[2] to negative to reflect logistic curve.
+    #Think of slope as how fast sel increases with size
+    sels <- sels/max(sels)
+  }
 
-    else { # if dome-shaped, use double logistic model (Method 1990)
-      sels_temp1 <- 1.0/(1.0+exp((dome_pars[1] - size_bm)* dome_pars[2]))
-      sels_temp2 <- 1.0 - 1.0/(1.0+exp((dome_pars[3] - size_bm)* dome_pars[4]))
-      sels <- (sels_temp1*sels_temp2)/max(sels_temp1*sels_temp2)
+  else { # if dome-shaped, use double logistic model (Method 1990)
+    sels_temp1 <- 1.0/(1.0+exp((dome_pars[1] - size_bm)* dome_pars[2]))
+    sels_temp2 <- 1.0 - 1.0/(1.0+exp((dome_pars[3] - size_bm)* dome_pars[4]))
+    sels <- (sels_temp1*sels_temp2)/max(sels_temp1*sels_temp2)
   }
   sels
   return(sels)
@@ -318,13 +312,13 @@ get_ssb.fracs <- function(ssb_month,n_s)
 ############### pop dyn ##########################
 # Central population dynamics function
 # Calculates abundance (N) at size, recruitment (R), and SSB
-pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight_m,alpha,beta,indicator,R_devs_v,R_l_pro,n_t,n_s,n_r,n_growblock,growth_array,mov.mat,mov.mat2,mov.mat3,mov.mat4)
+collect_population_dynamics <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight_m,alpha,beta,indicator,R_devs_v,R_l_pro,years_count,n_s,n_r,n_growblock,growth_array,mov.mat,mov.mat2,mov.mat3,mov.mat4)
 {
-  N_3d = array(0,c(n_t,n_l,n_s,n_r))
+  N_3d = array(0,c(years_count,n_l,n_s,n_r))
   SSB  = c()
   R    = c()
   # s=2 # for testing
-  for (t in 1:n_t){
+  for (t in 1:years_count){
 
     if(t>1)
       R[t] = get_R(SSB[t-1],alpha,beta,indicator)*exp(R_devs_v[t])
@@ -358,12 +352,12 @@ pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight
       if(t>1&s==1){
         # calculates abundance for each region by adding those that stay in the region to those that move to that region
         N_3d[t,,s,1]=(N_3d[t-1,,s,1]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*(1-sum(mov.mat[1,2:7]))+
-                      (N_3d[t-1,,s,2]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,2]+
-                      (N_3d[t-1,,s,3]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,3]+
-                      (N_3d[t-1,,s,4]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,4]+
-                      (N_3d[t-1,,s,5]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,5]+
-                      (N_3d[t-1,,s,6]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,6]+
-                      (N_3d[t-1,,s,7]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,7]
+          (N_3d[t-1,,s,2]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,2]+
+          (N_3d[t-1,,s,3]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,3]+
+          (N_3d[t-1,,s,4]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,4]+
+          (N_3d[t-1,,s,5]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,5]+
+          (N_3d[t-1,,s,6]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,6]+
+          (N_3d[t-1,,s,7]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[1,7]
 
         N_3d[t,,s,2]=(N_3d[t-1,,s,2]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*(1-sum(mov.mat[2,1],mov.mat[2,3:7]))+
           (N_3d[t-1,,s,1]*exp(-(F_3d[t-1,,s]+M_m[t-1,,s]))%*%growth_array[,,t-1]+R[t]*R_l_pro)*mov.mat[2,1]+
@@ -423,66 +417,66 @@ pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight
         SSB[t] = sum(N_3d[t,,s,]*exp(-SSB_frac_v[1]*(F_3d[t,,s]+M_m[t,,s]))*maturity_m[t,]*weight_m[t,])
       }
 
-  #If there is seasonality in the model config.
-  if(s==2){
-    # s=2
-    # t=1
-    N_3d[t,,s,1]=(N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[1,2:7]))+
-      (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,2]+
-      (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,3]+
-      (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,4]+
-      (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,5]+
-      (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,6]+
-      (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,7]
+      #If there is seasonality in the model config.
+      if(s==2){
+        # s=2
+        # t=1
+        N_3d[t,,s,1]=(N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[1,2:7]))+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[1,7]
 
-    N_3d[t,,s,2]=(N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[2,1],mov.mat2[2,3:7]))+
-      (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,1]+
-      (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,3]+
-      (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,4]+
-      (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,5]+
-      (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,6]+
-      (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,7]
+        N_3d[t,,s,2]=(N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[2,1],mov.mat2[2,3:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,1]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[2,7]
 
-    N_3d[t,,s,3]=(N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[3,1:2],mov.mat2[3,4:7]))+
-      (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,1]+
-      (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,2]+
-      (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,4]+
-      (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,5]+
-      (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,6]+
-      (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,7]
+        N_3d[t,,s,3]=(N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[3,1:2],mov.mat2[3,4:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,2]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[3,7]
 
-    N_3d[t,,s,4]=(N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[4,1:3],mov.mat2[4,5:7]))+
-      (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,1]+
-      (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,2]+
-      (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,3]+
-      (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,5]+
-      (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,6]+
-      (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,7]
+        N_3d[t,,s,4]=(N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[4,1:3],mov.mat2[4,5:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,3]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[4,7]
 
-    N_3d[t,,s,5]=(N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[5,1:4],mov.mat2[5,6:7]))+
-      (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,1]+
-      (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,2]+
-      (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,3]+
-      (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,4]+
-      (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,6]+
-      (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,7]
+        N_3d[t,,s,5]=(N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[5,1:4],mov.mat2[5,6:7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,4]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,6]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[5,7]
 
-    N_3d[t,,s,6]=(N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[6,1:5],mov.mat2[6,7]))+
-      (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,1]+
-      (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,2]+
-      (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,3]+
-      (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,4]+
-      (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,5]+
-      (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,7]
+        N_3d[t,,s,6]=(N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[6,1:5],mov.mat2[6,7]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,5]+
+          (N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[6,7]
 
-    N_3d[t,,s,7]=(N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[7,1:6]))+
-      (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,1]+
-      (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,2]+
-      (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,3]+
-      (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,4]+
-      (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,5]+
-      (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,6]
-  }
+        N_3d[t,,s,7]=(N_3d[t,,s-1,7]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*(1-sum(mov.mat2[7,1:6]))+
+          (N_3d[t,,s-1,1]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,1]+
+          (N_3d[t,,s-1,2]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,2]+
+          (N_3d[t,,s-1,3]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,3]+
+          (N_3d[t,,s-1,4]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,4]+
+          (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,5]+
+          (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat2[7,6]
+      }
       if(s==3){
         # s=2
         # t=1
@@ -601,10 +595,10 @@ pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight
           (N_3d[t,,s-1,5]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,5]+
           (N_3d[t,,s-1,6]*exp(-(F_3d[t,,s-1]+M_m[t,,s-1]))%*%growth_array[,,t]+R[t]*R_l_pro)*mov.mat4[7,6]
       }
-    if(s==SSB_frac_v[2]&n_s>1){ # for now, SSB is summed across all regions and season to an annual metric
-      SSB[t] = sum(N_3d[t,,s,]*exp(-SSB_frac_v[3]*(F_3d[t,,s]+M_m[t,,s]))*maturity_m[t,]*weight_m[t,])
+      if(s==SSB_frac_v[2]&n_s>1){ # for now, SSB is summed across all regions and season to an annual metric
+        SSB[t] = sum(N_3d[t,,s,]*exp(-SSB_frac_v[3]*(F_3d[t,,s]+M_m[t,,s]))*maturity_m[t,]*weight_m[t,])
+      }
     }
-   }
   }
   pop.dyn.obj = list(Abundance=N_3d,SSB=SSB,Recruits=R,F_3d=F_3d,M_2d=M_m)
   return(pop.dyn.obj)
@@ -612,28 +606,28 @@ pop_dyn <- function(N_init_tot,N_init_comp,F_3d,M_m,SSB_frac_v,maturity_m,weight
 
 ############### calulate catch ##########################
 # Calculates catch at size for each region
-cal_catch <- function(f_obj,M_m,N_3d,n_t,n_l,n_s,n_fleets,n_r)
+cal_catch <- function(f_obj,M_m,N_3d,years_count,n_l,n_s,n_fleets,n_r)
 {
-  catch_4d  = array(NA,c(n_t,n_l,n_s,n_fleets,n_r))
-  catch_3d  = array(NA,c(n_t,n_s,n_fleets))
-  catch_tot = matrix(NA,nrow=n_t,ncol=n_fleets)
+  catch_4d  = array(NA,c(years_count,n_l,n_s,n_fleets,n_r))
+  catch_3d  = array(NA,c(years_count,n_s,n_fleets))
+  catch_tot = matrix(NA,nrow=years_count,ncol=n_fleets)
 
   F_3d = f_obj$F_3d
   F_4d = f_obj$F_4d
 
- for(r in 1:n_r){
-  for (f in 1:n_fleets)
-  {
-    for (t in 1:n_t)
+  for(r in 1:n_r){
+    for (f in 1:n_fleets)
     {
-      for (s in 1:n_s)
+      for (t in 1:years_count)
       {
-        catch_4d[t,,s,f,r] = N_3d[t,,s,r]*(1-exp(-(F_3d[t,,s]+M_m[t,,s])))*(F_4d[t,,s,f]/(F_3d[t,,s]+M_m[t,,s]))
-        catch_3d[t,s,f] = sum(catch_4d[t,,s,f,])
+        for (s in 1:n_s)
+        {
+          catch_4d[t,,s,f,r] = N_3d[t,,s,r]*(1-exp(-(F_3d[t,,s]+M_m[t,,s])))*(F_4d[t,,s,f]/(F_3d[t,,s]+M_m[t,,s]))
+          catch_3d[t,s,f] = sum(catch_4d[t,,s,f,])
+        }
       }
     }
   }
- }
   catch.obj = list(catch_4d=catch_4d,catch_3d=catch_3d)
   return(catch.obj)
 }
@@ -642,24 +636,24 @@ cal_catch <- function(f_obj,M_m,N_3d,n_t,n_l,n_s,n_fleets,n_r)
 # This uses the generic effort time series from the input and catch time series
 # from the last function to calculate catch per unit effort (CPUE)
 get_cpue <- function(catch_3d, eff_switch_v, eff_array){
-  cpue_array <- array(NA, dim = c(n_t,n_s,n_fleets))
-    for(i in 1:length(eff_switch_v)){
-      if(eff_switch_v[i]==1){
-        cpue_array[,,i] <- catch_3d[,,i]/eff_array[,1]
-      }
-      if(eff_switch_v[i]==2){
-          cpue_array[,,i] <- catch_3d[,,i]/eff_array[,2]
-        }
-        if(eff_switch_v[i]==3){
-          cpue_array[,,i] <- catch_3d[,,i]/eff_array[,3]
-        }
-      if(eff_switch_v[i]==4){
-        cpue_array[,,i] <- catch_3d[,,i]/eff_array[,4]
-      }
-      if(eff_switch_v[i]==5){
-        cpue_array[,,i] <- catch_3d[,,i]/eff_array[,5]
-      }
+  cpue_array <- array(NA, dim = c(years_count,n_s,n_fleets))
+  for(i in 1:length(eff_switch_v)){
+    if(eff_switch_v[i]==1){
+      cpue_array[,,i] <- catch_3d[,,i]/eff_array[,1]
     }
+    if(eff_switch_v[i]==2){
+      cpue_array[,,i] <- catch_3d[,,i]/eff_array[,2]
+    }
+    if(eff_switch_v[i]==3){
+      cpue_array[,,i] <- catch_3d[,,i]/eff_array[,3]
+    }
+    if(eff_switch_v[i]==4){
+      cpue_array[,,i] <- catch_3d[,,i]/eff_array[,4]
+    }
+    if(eff_switch_v[i]==5){
+      cpue_array[,,i] <- catch_3d[,,i]/eff_array[,5]
+    }
+  }
   return(cpue_array)
 }
 
@@ -698,49 +692,49 @@ get_cpue <- function(catch_3d, eff_switch_v, eff_array){
 
 # Calculates "survey" index, i.e., index of relative abundance, based on
 # N, F, M, and assumed "survey" selectivity for each region
-cal_survey_inds <- function(N_3d,F_3d,M_m,survey_frac_v,survey_q_v,survey_sel_switch,survey_sel_pars,dome_pars,survey_periods,size_bm,n_survey,n_s,n_t,n_l,n_r)
+cal_survey_inds <- function(N_3d,F_3d,M_m,survey_frac_v,survey_q_v,survey_sel_switch,survey_sel_pars,dome_pars,survey_periods,size_bm,n_survey,n_s,years_count,n_l,n_r)
 {
-  survey.temp  = array(0,c(n_t,n_l,n_survey,n_r)) # needs spatial dimension and season dimension. I think this whole function needs to be re-written
+  survey.temp  = array(0,c(years_count,n_l,n_survey,n_r)) # needs spatial dimension and season dimension. I think this whole function needs to be re-written
   survey.sels  = matrix(NA,nrow=n_survey,ncol=n_l)
-  survey.obj   = array(0,c(n_t,n_l+1,n_survey,n_r))
+  survey.obj   = array(0,c(years_count,n_l+1,n_survey,n_r))
   # year_start = survey_periods[,1]
   # year_end = survey_periods[,2]
   # year_start
   # year_end
 
   for (n in 1:n_survey){
-   for (r in 1:n_r){
-    survey.sels[n,] = cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm) # could probably assume the same selectivity but different q for VAST indices
-   # survey.sels #looks good
-    # n1 = survey_periods[n,1] - year_start + 1
-    # n2 = n_t - (year_end-year_start)+1
-    # n1
-    # n2
+    for (r in 1:n_r){
+      survey.sels[n,] = cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm) # could probably assume the same selectivity but different q for VAST indices
+      # survey.sels #looks good
+      # n1 = survey_periods[n,1] - year_start + 1
+      # n2 = years_count - (year_end-year_start)+1
+      # n1
+      # n2
 
-    for (t in 1:n_t)
-    {
-      for(s in 1:n_s){
-        survey.temp[t,,n,r] = N_3d[t,,n,r]*exp(-survey_frac_v[s]*(F_3d[t,,s]+M_m[t,,s]))*survey_q_v[r]*survey.sels[n,]
-        # fitting goes here?
+      for (t in 1:years_count)
+      {
+        for(s in 1:n_s){
+          survey.temp[t,,n,r] = N_3d[t,,n,r]*exp(-survey_frac_v[s]*(F_3d[t,,s]+M_m[t,,s]))*survey_q_v[r]*survey.sels[n,]
+          # fitting goes here?
+        }
       }
+      survey.obj[,,n,r] = apply(survey.temp[,,n,r],1,sum)
     }
-    survey.obj[,,n,r] = apply(survey.temp[,,n,r],1,sum)
-   }
     #need to come up with a different storage object
- } # also we are not fitting to index length comps, so we can get rid of that
+  } # also we are not fitting to index length comps, so we can get rid of that
   return(survey.obj)
 }
 
 # fitting function
 
-fit.index <- function(pars,ind.obs,N_3d,F_3d,M_m,survey_frac_v,survey_sel_switch,survey_sel_pars,dome_pars,size_bm,n_t,n_l,s,r)
+fit.index <- function(pars,ind.obs,N_3d,F_3d,M_m,survey_frac_v,survey_sel_switch,survey_sel_pars,dome_pars,size_bm,years_count,n_l,s,r)
 {
   pars[1] -> q
-  ind.temp = array(NA,dim=c(n_t,n_l))
+  ind.temp = array(NA,dim=c(years_count,n_l))
   ind.pred <- c()
   survey_sels = matrix(NA,ncol=1,nrow=n_l)
   survey.sels = cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm)
-  for (t in 1:n_t){
+  for (t in 1:years_count){
     ind.temp[t,] <- N_3d[t,,s,r]*exp(-survey_frac_v[s]*(F_3d[t,,s]+M_m[t,,s]))*q*survey.sels # if we're using the N_3d object, then they already survived...
   }
   ind.pred <- apply(ind.temp,1,sum)
@@ -751,10 +745,10 @@ fit.index <- function(pars,ind.obs,N_3d,F_3d,M_m,survey_frac_v,survey_sel_switch
 # Function that does the actual fitting to observed indices/CPUE
 # Currently uses sum of squares to estimate a single catchability "q"
 # for each region and each season (total = 28)
-get.fitted.pred.index <- function(ind.vast,N_3d,F_3d,M_m,survey_frac_v,survey_q_v,survey_sel_switch,survey_sel_pars,dome_pars,survey_periods,size_bm,n_survey,n_s,n_t,n_l,n_r){
+get.fitted.pred.index <- function(ind.vast,N_3d,F_3d,M_m,survey_frac_v,survey_q_v,survey_sel_switch,survey_sel_pars,dome_pars,survey_periods,size_bm,n_survey,n_s,years_count,n_l,n_r){
   q.vec <- array(NA,dim=c(n_s,n_r))
-  ind.pred.temp <- array(NA,dim=c(n_t,n_l,n_s,n_r)) # use size-structured dynamics and selectivity to generate predicted index
-  ind.pred <- array(NA,dim=c(n_t,n_s,n_r)) # there's no length info in the index, so output needs to be aggregated
+  ind.pred.temp <- array(NA,dim=c(years_count,n_l,n_s,n_r)) # use size-structured dynamics and selectivity to generate predicted index
+  ind.pred <- array(NA,dim=c(years_count,n_s,n_r)) # there's no length info in the index, so output needs to be aggregated
   survey_sels = matrix(NA,ncol=1,nrow=n_l)
   survey.sels = cal_sels(survey_sel_pars,survey_sel_switch,dome_pars,size_bm)
   for(r in 1:n_r){
@@ -762,7 +756,7 @@ get.fitted.pred.index <- function(ind.vast,N_3d,F_3d,M_m,survey_frac_v,survey_q_
       fit = nlminb(start = init, objective = fit.index, lower = lower, upper = upper,
                    ind.obs = ind.vast[,s,r], N_3d = N_3d, F_3d = F_3d, M_m = M_m, survey_frac_v = survey_frac_v,
                    survey_sel_switch = survey_sel_switch, survey_sel_pars = survey_sel_pars,
-                   dome_pars = dome_pars, size_bm = size_bm,  n_t = n_t, n_l = n_l, s=s, r=r, # this makes it so we can loop through season and region
+                   dome_pars = dome_pars, size_bm = size_bm,  years_count = years_count, n_l = n_l, s=s, r=r, # this makes it so we can loop through season and region
                    control = list(eval.max = 500, iter.max = 500, rel.tol = 1e-8))
       q.vec[s,r] <- fit$par
       ind.pred.temp[,,s,r] <- N_3d[,,s,r]*exp(-survey_frac_v[s]*(F_3d[,,s]+M_m[,,s]))*q.vec[s,r]*survey.sels
@@ -822,23 +816,23 @@ add.error.lognormal <- function(data,cv)
 #   n.year         = lapply(catch.obj, dim)$catch_4d[1]
 #
 #   n_s = n.season
-#   n_t = n.year
+#   years_count = n.year
 #   n_fleets = n.fleets
 #
 #   year_start = year_start
 #   year_end = year_end
-#   catch.data.m   = matrix(-1,nrow=n_t*n_s*n_fleets,ncol=9+length(size_bm)) #changed n.lengthbins to what I've been using to count them 'size_bm'
+#   catch.data.m   = matrix(-1,nrow=years_count*n_s*n_fleets,ncol=9+length(size_bm)) #changed n.lengthbins to what I've been using to count them 'size_bm'
 #   catch.data.m
 #   length(size_bm)
 #
 #   year      = rep(seq(year_start,year_end,1),n_s*n_fleets)
-#   season    = rep(rep(1:n_s,each=n_t),n_fleets)
-#   fleet     = rep(rep(1:n_fleets,each=n_t*n_s))
+#   season    = rep(rep(1:n_s,each=years_count),n_fleets)
+#   fleet     = rep(rep(1:n_fleets,each=years_count*n_s))
 #   catch.tot = c()
 #   cv        = c()
-#   cpue      = rep(-1,n_t*n_s*n_fleets)
-#   cpue.flag = rep(1,n_t*n_s*n_fleets)
-#   cpue.cv   = rep(-1,n_t*n_s*n_fleets)
+#   cpue      = rep(-1,years_count*n_s*n_fleets)
+#   cpue.flag = rep(1,years_count*n_s*n_fleets)
+#   cpue.cv   = rep(-1,years_count*n_s*n_fleets)
 #   ess       = c()
 #   comp      = data.frame()
 #
@@ -922,7 +916,7 @@ add.error.lognormal <- function(data,cv)
 # #     cv.temp      = survey.cv[[i]]
 # #     cv           = c(cv,cv.temp)
 # #     cv
-# #     ess.temp     = survey.ess[,i,] #Hot fix gets it to work. I think the main error here has to do with the array being n_t rows
+# #     ess.temp     = survey.ess[,i,] #Hot fix gets it to work. I think the main error here has to do with the array being years_count rows
 # #     ess          = c(ess,ess.temp)
 # #     ess
 # #     comp.temp    = survey.obj[[i]][,2:n_sizeb]
