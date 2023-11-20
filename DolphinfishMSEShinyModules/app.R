@@ -54,6 +54,7 @@ server <- function(input, output) {
     rec.sto = input$stochasticity # stochastic mean recruitment?
     while (iteration <= n.iterations) {
       source("logic/input.data.R") # run input file
+      source("logic/data.gen.movement_matrix.R")
       source("logic/data.gen.population_dynamics.R") # produces results for OM
       ssb.array[,iteration] = PopDy$SSB # store SSB for each iteration
       iteration = iteration + 1 # update counter
@@ -97,6 +98,7 @@ server <- function(input, output) {
     rec.sto = input$stochasticity # stochastic mean recruitment?
     while (iteration <= n.iterations) {
       source("logic/input.data.R") # run input file
+      source("logic/data.gen.movement_matrix.R")
       source("logic/data.gen.population_dynamics.R") # produces results for OM
       # ssb.array[,iteration] = PopDy$SSB # store SSB for each iteration
       abundance.array[,,,,iteration] = PopDy$Abundance

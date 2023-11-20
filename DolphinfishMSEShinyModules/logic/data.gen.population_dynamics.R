@@ -13,5 +13,5 @@ PopDy            <- collect_population_dynamics(
   f_object$F_3d, M_matrix, SSB_frac_v, maturity_matrix,
   weight_matrix, alpha, beta, indicator,
   R_devs_v, R_l_pro, years_count, n_s, n_r, n_growblock,
-  growth_array, mov.mat, mov.mat2, mov.mat3, mov.mat4
+  growth_array, movement.matrix1, movement.matrix2, movement.matrix3, movement.matrix4
 )

@@ -27,7 +27,6 @@ for (n in 1:years_count)
 {
   WL_pars_m[n,] = c(log(2e-8),2.8) # parameters an avg based on several studies outlined in Oxenford (1999)
 }
-weight_m <- get_weight(WL_pars_m,size_bm,years_count)
 
 ########### Maturity #################
 # Define maturity parameters (for calculating SSB, not for yield)
@@ -40,8 +39,6 @@ for (n in 1:years_count) {
   fe_prop_pars_m[n,] = c(L50, inter)
 }
 
-maturity_m <- get_matu_prop(fe_prop_pars_m,size_bm,years_count)
-
 
 ########### Natural Mortality #################
 # Molto et al. 2022 suggest M can be as high as 0.25 per month (1.00 per quarter?)
@@ -49,89 +46,6 @@ maturity_m <- get_matu_prop(fe_prop_pars_m,size_bm,years_count)
 # annual M of 4.00 isn't far off from what Oxenford (1999) report, which is around 3.5
 M_year_v = matrix(1, nrow = years_count, ncol = 1) # keep these dimensions and just apply M each season - same effect
 M_size_v = matrix(1, nrow = 1, ncol = n_l) # matrix for size effect on M
-
-########### Movement #################
-# columns represent movement to each region
-# 10-11-2023: naive movement matrices based on assumptions, not expert opinion. fine tune based on expert opinion later
-
-# season 1 movement matrix (W)
-# Winter movement assumptions: fish mostly showing up in CAR,
-# likely some present in offshore areas like NED, SAR
-
-# for reference
-# VA_mon, N. NC, NC_E.FL, S. FL (Keys), CAR, NED (offshore), SAR (offshore)
-
-# VA to Montauk, NY
-va.mon <- c(0,0,0,0,0,0.4,0.6) # all have gone offshore
-# Northern NC
-n.nc <- c(0.1,0,0,0,0,0.6,0.3) # residual fish from southern regions move N and offshore
-# Wilmington NC to East. FL
-wm.ga <- c(0.1,0.1,0,0,0,0.5,0.3)
-# Southern FL
-s.fl <- c(0.1,0.1,0.1,0,0,0.4,0)
-# Caribbean (general) # fish arrive in CAR
-car <- c(0,0,0,0,0.6,0.1,0.3)
-# Northeast distant waters # fish move south
-ned <- c(0,0,0,0,0,0.1,0.9)
-# Sargasso sea # fish move into CAR
-sar <- c(0,0,0,0,0.7,0,0.3)
-
-# combine columns to create the movement matrix
-mov.mat <- rbind(va.mon,n.nc,wm.ga,s.fl,car,ned,sar) # movement matrix
-
-# Season 2 movement matrix (Sp)
-# Spring movement assumptions: fish present in CAR-N.NC, moving north and west
-va.mon <- c(1,0,0,0,0,0,0) # assume any fish that come here stay
-# Northern NC
-n.nc <- c(0.3,0.7,0,0,0,0,0)
-# Wilmington NC to GA
-wm.ga <- c(0.2,0.3,0.5,0,0,0,0)
-# Southern FL
-s.fl <- c(0,0.2,0.3,0.5,0,0,0) # assume half stay and half move north
-# Caribbean (general)
-car <- c(0,0,0.4,0.1,0.5,0,0) # assume CAR fish don't go to FL as much
-# Northeast distant waters
-ned <- c(0,0,0,0,0.5,0,0.5) # send all NED fish to CAR and SAR
-# Sargasso sea
-sar <- c(0,0.2,0.3,0,0.5,0,0) # send all SAR fish to CAR and north
-
-mov.mat2 <- rbind(va.mon,n.nc,wm.ga,s.fl,car,ned,sar)
-
-# Season 3 movement matrix (Su)
-# Summer movement assumptions: fish less present in CAR, more in N, some move offshore
-va.mon <- c(0.8,0,0,0,0,0.2,0) # assume most fish stay
-# Northern NC
-n.nc <- c(0.3,0.7,0,0,0,0,0) # same as spring
-# Wilmington NC to GA
-wm.ga <- c(0.2,0.3,0.5,0,0,0,0) # same as spring
-# Southern FL
-s.fl <- c(0,0.3,0.4,0.3,0,0,0) # assume most go north in summer
-# Caribbean (general)
-car <- c(0.2,0.3,0.3,0.1,0.1,0,0) # assume most move north
-# Northeast distant waters
-ned <- c(0,0,0,0,0,0,1) # send all NED fish and SAR
-# Sargasso sea
-sar <- c(0.1,0.2,0.4,0.2,0.1,0,0) # send all SAR fish to CAR and north
-
-mov.mat3 <- rbind(va.mon,n.nc,wm.ga,s.fl,car,ned,sar)
-
-# Season 4 movement matrix (F)
-# Fall movement assumptions: more fish in north, few fish in NC, none further south, others offshore
-va.mon <- c(0.7,0,0,0,0,0.3,0) # assume most fish stay
-# Northern NC
-n.nc <- c(0.7,0.3,0,0,0,0,0)
-# Wilmington NC to GA
-wm.ga <- c(0.5,0.5,0,0,0,0,0)
-# Southern FL
-s.fl <- c(0.2,0.3,0.5,0,0,0,0) # assume most go north in summer
-# Caribbean (general)
-car <- c(0,0,0.1,0.1,0.8,0,0) # most fish arrive and stay, few move
-# Northeast distant waters
-ned <- c(0,0,0,0,0,0,1) # send all NED fish and SAR
-# Sargasso sea
-sar <- c(0,0,0,0,1,0,0) # send all SAR fish to CAR
-
-mov.mat4 <- rbind(va.mon,n.nc,wm.ga,s.fl,car,ned,sar)
 
 ########### Selectivity #################
 # choose selectivity parameters
@@ -147,16 +61,6 @@ dome_pars = c(400,0.2,1200,0.3) # dummy when not using dome-shaped pars
 priv_rec_sel_N = c(300, 0.01, 1100, 0.01) # patterns are very similar for N states priv and overall for hire
 # fh_rec_sel = c(400, 0.01, 1200, 0.01)
 disc_gen_sel = c(100,0.01,500,0.01) # general discard selectivity
-
-
-# Check logistic
-sel_switch = 2
-sels <- cal_sels(pll_comm_sel,sel_switch,dome_pars,size_bm)
-# plot(size_bm,sels)
-# Check dome
-sel_switch = 3
-sels <- cal_sels(log_pars,sel_switch,priv_rec_sel_N,size_bm)
-# plot(size_bm,sels)
 
 # 10-10-2023: 6 fleets for now: commercial, private rec N & S, for hire N & S, and general discard
 # No spatial structure for now; can use areas as fleets approach later
