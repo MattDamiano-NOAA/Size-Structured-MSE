@@ -23,7 +23,7 @@ ui <- fluidPage(
                   "Number of iterations:",
                   min = 1,
                   max = 30,
-                  value = 5),
+                  value = 2),
       checkboxInput("stochasticity",
                     "Stochasticity?",
                     value = TRUE)
@@ -31,16 +31,18 @@ ui <- fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("abundancePlot"),
+      plotOutput("ssbPlot"),
     )
   )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  output$abundancePlot <- renderPlot({
+  output$ssbPlot <- renderPlot({
     # Input parameters
-    n.iterations = input$iterations
+    n.iterations <- input$iterations
+    initial_year <- 1986
+    terminal_year <- 2022
 
     # Main display calculations
     ssb.array <- array(NA, dim = c(37, n.iterations))
@@ -50,7 +52,6 @@ server <- function(input, output) {
 
     rec.sto = input$stochasticity # stochastic mean recruitment?
     while (iteration <= n.iterations) {
-
       source("logic/input.data.R") # run input file
       source("logic/data.gen.R") # produces results for OM
       ssb.array[,iteration] = PopDy$SSB # store SSB for each iteration
@@ -59,7 +60,7 @@ server <- function(input, output) {
     }
 
     plot(
-      seq(1986, 2022, 1),
+      seq(initial_year, terminal_year, 1),
       rowMeans(ssb.array, dims = 1),
       type = "l",
       ylim = c(min(ssb.array), max(ssb.array)),

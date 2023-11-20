@@ -6,11 +6,8 @@
 
 # Model dimensions
 
-
-terminal_year = 2022
-
 # set the number of years
-years = rep(1986:terminal_year)
+years = rep(initial_year:terminal_year)
 
 # set annual time step
 n_t = length(years)
@@ -450,7 +447,7 @@ survey_sel_switch = 2
 survey_periods = matrix(NA, ncol = 2, nrow = n_survey)
 for (n in 1:n_survey)
 {
-  survey_periods[n,] = c(1986, terminal_year)
+  survey_periods[n,] = c(initial_year, terminal_year)
 }
 
 # call survey fractions
