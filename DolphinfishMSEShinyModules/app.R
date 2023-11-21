@@ -53,8 +53,18 @@ server <- function(input, output) {
 
     rec.sto = input$stochasticity # stochastic mean recruitment?
     while (iteration <= n.iterations) {
-      source("logic/input.data.R") # run input file
-      source("logic/data.gen.movement_matrix.R")
+      source("logic/data.params.year_size.R")
+      source("logic/data.params.selectivity.R")
+      source("logic/data.params.movement.R")
+      source("logic/data.params.weight_length_relationship.R")
+      source("logic/data.params.maturity.R")
+      source("logic/data.params.natural_mortality.R")
+      source("logic/data.params.fishing_mortality.R")
+      source("logic/data.params.growth.R")
+      source("logic/data.params.recruitment.R")
+      source("logic/data.params.pop_dynamics.R")
+      source("logic/data.params.cpue.R")
+      source("logic/data.params.survey.R")
       source("logic/data.gen.population_dynamics.R") # produces results for OM
       ssb.array[,iteration] = PopDy$SSB # store SSB for each iteration
       iteration = iteration + 1 # update counter
@@ -71,18 +81,6 @@ server <- function(input, output) {
       xlab = "Year",
       main = "Spawning Stock Biomass"
     )
-    for (i in 1:n.iterations) {
-      points(
-        seq(initial_year, terminal_year, 1),
-        jitter(ssb.array[,i], factor = 2),
-        type = "l",
-        col = rgb(
-          160, 32, 240,
-          (255 - abs(iteration_cols - i))/9,
-          maxColorValue = 255
-        ),
-        lwd = 2)
-    }
   })
 
   output$abundancePlot <- renderPlot({
@@ -97,8 +95,18 @@ server <- function(input, output) {
 
     rec.sto = input$stochasticity # stochastic mean recruitment?
     while (iteration <= n.iterations) {
-      source("logic/input.data.R") # run input file
-      source("logic/data.gen.movement_matrix.R")
+      source("logic/data.params.year_size.R")
+      source("logic/data.params.selectivity.R")
+      source("logic/data.params.movement.R")
+      source("logic/data.params.weight_length_relationship.R")
+      source("logic/data.params.maturity.R")
+      source("logic/data.params.natural_mortality.R")
+      source("logic/data.params.fishing_mortality.R")
+      source("logic/data.params.growth.R")
+      source("logic/data.params.recruitment.R")
+      source("logic/data.params.pop_dynamics.R")
+      source("logic/data.params.cpue.R")
+      source("logic/data.params.survey.R")
       source("logic/data.gen.population_dynamics.R") # produces results for OM
       # ssb.array[,iteration] = PopDy$SSB # store SSB for each iteration
       abundance.array[,,,,iteration] = PopDy$Abundance
