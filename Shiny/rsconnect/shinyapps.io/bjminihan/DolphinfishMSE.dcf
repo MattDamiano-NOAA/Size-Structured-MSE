@@ -5,7 +5,7 @@ account: bjminihan
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10411831
-bundleId: 7950807
+bundleId: 7950892
 url: https://bjminihan.shinyapps.io/DolphinfishMSE/
 version: 1
 asMultiple: FALSE

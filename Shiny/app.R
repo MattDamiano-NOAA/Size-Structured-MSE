@@ -23,9 +23,9 @@ ui <- fluidPage(
     sidebarPanel(
       sliderInput("iterations",
                   "Number of iterations:",
-                  min = 1,
-                  max = 30,
-                  value = 2),
+                  min = config::get('min_iterations'),
+                  max = config::get('max_iterations'),
+                  value = config::get('iterations')),
       checkboxInput("stochasticity",
                     "Stochasticity?",
                     value = TRUE)

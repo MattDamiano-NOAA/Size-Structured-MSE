@@ -1,0 +1,13 @@
+default:
+  iterations: 2
+  min_iterations: 1
+  max_iterations: 10
+
+development:
+
+
+# equiv to production
+rsconnect:
+  iterations: 5
+  min_iterations: 1
+  max_iterations: 30
