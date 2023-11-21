@@ -2,7 +2,7 @@
 
 This folder contains the Dolphinfish MSE Shiny Web application and related files
 
-The logic folder contains functions and modules from the parent folder in this repo (e.g. Functions.R)
+The R folder contains functions and modules from the parent folder in this repo (e.g. Functions.R)
 
 The data folder contains CSV files
 

@@ -39,8 +39,6 @@ d <- read.csv('data/VASTindex.csv')
 # d <- as.data.frame(cbind(ind.vast$NED,ind.vast$VBMN,ind.vast$NNC,ind.vast$NCFL,ind.vast$SAR,ind.vast$FLK,ind.vast$CAR))
 # This isn't enough - you need to get it into a 37 x 4 x 7 array
 # That means sorting by season
-library(dplyr)
-library(tidyr)
 ind.vast <- as_tibble(d)
 winter <- d %>% filter(Season == "Winter") # apparently there's an extra space in the .csv
 winter[is.na(winter)] <- 0

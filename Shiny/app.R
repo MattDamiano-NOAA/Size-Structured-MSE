@@ -8,7 +8,9 @@
 #
 
 library(shiny)
-source("logic/functions.R")
+library(dplyr)
+library(tidyr)
+source("R/functions.R")
 
 # d <- read.csv('data/VASTindex.csv')
 
@@ -54,19 +56,19 @@ server <- function(input, output) {
 
     rec.sto = input$stochasticity # stochastic mean recruitment?
     while (iteration <= n.iterations) {
-      source("logic/data.params.year_size.R")
-      source("logic/data.params.selectivity.R")
-      source("logic/data.params.movement.R")
-      source("logic/data.params.weight_length_relationship.R")
-      source("logic/data.params.maturity.R")
-      source("logic/data.params.natural_mortality.R")
-      source("logic/data.params.fishing_mortality.R")
-      source("logic/data.params.growth.R")
-      source("logic/data.params.recruitment.R")
-      source("logic/data.params.pop_dynamics.R")
-      source("logic/data.params.cpue.R")
-      source("logic/data.params.survey.R")
-      source("logic/data.gen.population_dynamics.R") # produces results for OM
+      source("R/data.params.year_size.R")
+      source("R/data.params.selectivity.R")
+      source("R/data.params.movement.R")
+      source("R/data.params.weight_length_relationship.R")
+      source("R/data.params.maturity.R")
+      source("R/data.params.natural_mortality.R")
+      source("R/data.params.fishing_mortality.R")
+      source("R/data.params.growth.R")
+      source("R/data.params.recruitment.R")
+      source("R/data.params.pop_dynamics.R")
+      source("R/data.params.cpue.R")
+      source("R/data.params.survey.R")
+      source("R/data.gen.population_dynamics.R") # produces results for OM
       ssb.array[,iteration] = PopDy$SSB # store SSB for each iteration
       iteration = iteration + 1 # update counter
     }
@@ -96,19 +98,19 @@ server <- function(input, output) {
 
     rec.sto = input$stochasticity # stochastic mean recruitment?
     while (iteration <= n.iterations) {
-      source("logic/data.params.year_size.R")
-      source("logic/data.params.selectivity.R")
-      source("logic/data.params.movement.R")
-      source("logic/data.params.weight_length_relationship.R")
-      source("logic/data.params.maturity.R")
-      source("logic/data.params.natural_mortality.R")
-      source("logic/data.params.fishing_mortality.R")
-      source("logic/data.params.growth.R")
-      source("logic/data.params.recruitment.R")
-      source("logic/data.params.pop_dynamics.R")
-      source("logic/data.params.cpue.R")
-      source("logic/data.params.survey.R")
-      source("logic/data.gen.population_dynamics.R") # produces results for OM
+      source("R/data.params.year_size.R")
+      source("R/data.params.selectivity.R")
+      source("R/data.params.movement.R")
+      source("R/data.params.weight_length_relationship.R")
+      source("R/data.params.maturity.R")
+      source("R/data.params.natural_mortality.R")
+      source("R/data.params.fishing_mortality.R")
+      source("R/data.params.growth.R")
+      source("R/data.params.recruitment.R")
+      source("R/data.params.pop_dynamics.R")
+      source("R/data.params.cpue.R")
+      source("R/data.params.survey.R")
+      source("R/data.gen.population_dynamics.R") # produces results for OM
       abundance.array[,,,,iteration] = PopDy$Abundance
       iteration = iteration + 1 # update counter
     }
