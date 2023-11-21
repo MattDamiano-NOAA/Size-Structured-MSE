@@ -12,8 +12,6 @@ library(dplyr)
 library(tidyr)
 source("R/functions.R")
 
-# d <- read.csv('data/VASTindex.csv')
-
 # Define UI for application that draws a histogram
 ui <- fluidPage(
 
