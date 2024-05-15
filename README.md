@@ -6,7 +6,7 @@
 
 # This repository contains R files for the generalized size-structured operating models developed by Damiano et al. (2024*) and conditioned to mimic the most recent stock assessment for black sea bass (SEDAR 2023), and the size-structured stock assessment ADMB file developed by Cao et al. (2017). 
 
-#*https://doi.org/10.1016/j.fishres.2024.107028
+*https://doi.org/10.1016/j.fishres.2024.107028 (reach out for a copy of the paper if so desired)
 
 # Model files and function:
 
