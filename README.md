@@ -4,7 +4,9 @@
 
 # The original goals of this project were to test an array of management strategies against commercial and recreational objectives for two Southeast marine stocks: South Atlantic black sea bass and Atlantic cobia, forecast quantities of interest such as catches by fleet, recruitment, abundance, and spawning stock biomass (SSB), and evaluate tradeoffs where they occur.
 
-# This repository contains R files for the generalized size-structured operating models developed by Damiano et al. (2023) and conditioned to mimic the most recent stock assessment for black sea bass (2023), and the size-structured stock assessment ADMB file developed by Cao et al. (2017). 
+# This repository contains R files for the generalized size-structured operating models developed by Damiano et al. (2024*) and conditioned to mimic the most recent stock assessment for black sea bass (SEDAR 2023), and the size-structured stock assessment ADMB file developed by Cao et al. (2017). 
+
+#*https://doi.org/10.1016/j.fishres.2024.107028
 
 # Model files and function:
 
